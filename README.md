@@ -1,5 +1,6 @@
 <img width="667" alt="image" src="https://github.com/user-attachments/assets/7c55564f-609c-4a1c-b3b1-b22de3b2081a" />
-<img width="421" alt="image" src="https://github.com/user-attachments/assets/32d89594-ba57-4005-b32e-453c52506015" />
+<img width="566" alt="image" src="https://github.com/user-attachments/assets/0e056a2a-8a21-4854-8e98-08743593fc1a" />
+
 
 
 <h3>For Developer Account App Registration follow below steps,</h3>
