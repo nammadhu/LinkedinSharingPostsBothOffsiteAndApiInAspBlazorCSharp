@@ -1,4 +1,5 @@
 using LinkedinSharingPostsAspBlazor.Components;
+using Microsoft.AspNetCore.Builder;
 
 namespace LinkedinSharingPostsAspBlazor
 {
@@ -12,6 +13,13 @@ namespace LinkedinSharingPostsAspBlazor
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
 
+            builder.Services.AddControllers();//for callback endpoint handling
+            builder.Services.AddSingleton<LinkedInService>();
+            builder.Services.AddHttpClient();
+            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddMemoryCache();
+
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -23,10 +31,10 @@ namespace LinkedinSharingPostsAspBlazor
             }
 
             app.UseHttpsRedirection();
-
+            
             app.UseStaticFiles();
             app.UseAntiforgery();
-
+            app.MapControllers();//for callback endpoint handling
             app.MapRazorComponents<App>()
                 .AddInteractiveServerRenderMode();
 

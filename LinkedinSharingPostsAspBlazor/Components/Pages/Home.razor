@@ -2,6 +2,34 @@
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
-
-Welcome to your new app.
+<h1>Linkedin Post Sharing From Web Apps in 2 ways</h1>
+<p>Here using AspNet Core C# and Blazor</p>
+<h3>1.Share-offsite</h3>
+<ul>
+	<li style="color:green">Works For Direct simple contents like Text,Urls...Just alike Simple Share button</li>
+	<li style="color:green">Very Minimal code... i.e Just one line</li>
+	<li style="color:red">Minimal features and No Direct media posting option at all</li>
+	<li>If multiple URLs found then first link preview will be overridden on all. </li>
+	<li style="color:purple">Previews will be changing over time wrt CRAWLers,so can be advantage/drawback both</li>
+	<li style="color:blue">can view preview on 
+		<a href="https://www.linkedin.com/post-inspector/" target="_blank">
+			https://www.linkedin.com/post-inspector
+		</a></li>
+	<li>
+		Code Example <code style="color:darkgreen">
+		<a href="https://www.linkedin.com/sharing/share-offsite/?text=am sharing my test text&url=SmartTown.in" target="_blank">
+				<code>https://www.linkedin.com/sharing/share-offsite/?text=am sharing my test text&url=SmartTown.in</code>
+			</a>
+		</code>
+	</li>
+</ul>
+@* <hr /> *@
+<h3>2.Share Using linkedin API</h3>
+<p>For complete feature of linkedin internal platform features with lots of advanced. </p>
+<ul>
+	<li style="color:green">complete feature of linkedin internal platform features with lots of advanced.</li>
+	<li style="color:red">Requires linkedin developer app account registration(https://www.linkedin.com/developers/apps) and scopes (w_member_social,r_basicprofile with additional approvals)</li>
+	<li style="color:red">Requires more technical knowledge for integration</li>
+	<li>PLEASE MAKE SURE of proper clientid and secret set on appsettings.json</li>
+	<li><a href="/share"> Click here to test Sharing Over Linkedin API</a></li>
+</ul>
