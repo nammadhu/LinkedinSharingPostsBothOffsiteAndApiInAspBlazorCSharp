@@ -8,28 +8,21 @@
 @inject IMemoryCache cache
 
 <h3>Share to LinkedIn</h3>
-
 <p>Pass the below parameters to post to Linkedin</p>
-
 <input @bind="linkedInPost.Text" placeholder="Enter text" />
 <input @bind="linkedInPost.ImageUrlRemote" placeholder="Enter image URL" />
 <input @bind="linkedInPost.TextUrl" placeholder="Enter URL" />
 <button @onclick="SharePost">Share</button>
-
 @code {
-    private LinkedInPost linkedInPost = new LinkedInPost();
-    // private string Text { get; set; } = "Default Testing Text Here";
-    // private string ImageUrlRemote { get; set; } = "https://www.w3schools.com/howto/img_nature.jpg";
-    // private string Url { get; set; } = "Google.com";
+	private LinkedInPost linkedInPost = new LinkedInPost();
+	private async Task SharePost()
+	{
+		if (!string.IsNullOrEmpty(linkedInPost.Text)) cache.Set(LinkedInPost.TextConst, linkedInPost.Text);
+		if (!string.IsNullOrEmpty(linkedInPost.ImageUrlRemote)) cache.Set(LinkedInPost.ImageUrlRemoteConst, linkedInPost.ImageUrlRemote);
+		if (!string.IsNullOrEmpty(linkedInPost.TextUrl)) cache.Set(LinkedInPost.UrlConst, linkedInPost.TextUrl);
 
-    private async Task SharePost()
-    {
-        if (!string.IsNullOrEmpty(linkedInPost.Text)) cache.Set(LinkedInPost.TextConst, linkedInPost.Text);
-        if (!string.IsNullOrEmpty(linkedInPost.ImageUrlRemote)) cache.Set(LinkedInPost.ImageUrlRemoteConst, linkedInPost.ImageUrlRemote);
-        if (!string.IsNullOrEmpty(linkedInPost.TextUrl)) cache.Set(LinkedInPost.UrlConst, linkedInPost.TextUrl);
+		var authorizationUrl = $"https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id={Configuration["LinkedIn:ClientId"]}&redirect_uri={Configuration["LinkedIn:RedirectUri"]}&scope=openid%20profile%20email%20r_basicprofile%20w_member_social";
 
-        var authorizationUrl = $"https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id={Configuration["LinkedIn:ClientId"]}&redirect_uri={Configuration["LinkedIn:RedirectUri"]}&scope=openid%20profile%20email%20r_basicprofile%20w_member_social";
-
-        Navigation.NavigateTo(authorizationUrl, true);
-    }
+		Navigation.NavigateTo(authorizationUrl, true);
+	}
 }
