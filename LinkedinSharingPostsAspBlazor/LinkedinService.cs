@@ -2,16 +2,11 @@
 using System.Text;
 using System.Text.Json.Serialization;
 
-public class LinkedInService
+namespace LinkedinSharingPostsAspBlazor;
+public class LinkedInService(IHttpClientFactory httpClientFactory, IConfiguration configuration)
 {
-    private readonly HttpClient _httpClient;
-    private readonly IConfiguration _configuration;
-
-    public LinkedInService(IHttpClientFactory httpClientFactory, IConfiguration configuration)
-    {
-        _httpClient = httpClientFactory.CreateClient();
-        _configuration = configuration;
-    }
+    private readonly HttpClient _httpClient = httpClientFactory.CreateClient();
+    private readonly IConfiguration _configuration = configuration;
 
     public async Task<string> GetAccessTokenAsync(string authorizationCode)
     {
