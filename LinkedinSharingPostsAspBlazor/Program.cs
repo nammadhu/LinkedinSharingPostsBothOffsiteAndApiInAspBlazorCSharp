@@ -1,5 +1,4 @@
 using LinkedinSharingPostsAspBlazor.Components;
-using Microsoft.AspNetCore.Builder;
 
 namespace LinkedinSharingPostsAspBlazor
 {
@@ -31,7 +30,7 @@ namespace LinkedinSharingPostsAspBlazor
             }
 
             app.UseHttpsRedirection();
-            
+
             app.UseStaticFiles();
             app.UseAntiforgery();
             app.MapControllers();//for callback endpoint handling

@@ -1,18 +1,15 @@
-﻿using System;
-using System.Net.Http.Headers;
+﻿using System.Net.Http.Headers;
 using System.Text;
-using System.Text.Json;
 using System.Text.Json.Serialization;
-using static System.Net.Mime.MediaTypeNames;
 
 public class LinkedInService
 {
     private readonly HttpClient _httpClient;
     private readonly IConfiguration _configuration;
 
-    public LinkedInService(HttpClient httpClient, IConfiguration configuration)
+    public LinkedInService(IHttpClientFactory httpClientFactory, IConfiguration configuration)
     {
-        _httpClient = httpClient;
+        _httpClient = httpClientFactory.CreateClient();
         _configuration = configuration;
     }
 
@@ -187,7 +184,7 @@ public class LinkedInService
 
 public class LinkedInPost
 {
-    public const string TextConst= "LinkedInPostText";
+    public const string TextConst = "LinkedInPostText";
     public const string UrlConst = "LinkedInPostUrl";
     public const string ImageUrlRemoteConst = "LinkedInPostImageUrlRemote";
     public const string ImageUrlLocalConst = "LinkedInPostImageUrlLocal";
