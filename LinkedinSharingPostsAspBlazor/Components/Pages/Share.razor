@@ -4,24 +4,23 @@
 @* @rendermode InteractiveServer if necessary *@
 @inject NavigationManager Navigation
 @inject IConfiguration Configuration
-@inject IMemoryCache cache
 
 <h3>Share to LinkedIn</h3>
 <p>Pass the below parameters to post to Linkedin</p>
-<input @bind="linkedInPost.Text" placeholder="Enter text" />
-<input @bind="linkedInPost.ImageUrlRemote" placeholder="Enter image URL" />
-<input @bind="linkedInPost.TextUrl" placeholder="Enter URL" />
+<input @bind="post.Text" placeholder="Enter text" />
+<input @bind="post.ImageUrlRemote" placeholder="Enter image URL" />
+<input @bind="post.TextUrl" placeholder="Enter URL" />
 <button @onclick="SharePost">Share</button>
 @code {
-	private LinkedInPost linkedInPost = new LinkedInPost();
-	private async Task SharePost()
+	private LinkedInPost post = new LinkedInPost();
+	private void SharePost()
 	{
-		if (!string.IsNullOrEmpty(linkedInPost.Text)) cache.Set(LinkedInPost.TextConst, linkedInPost.Text);
-		if (!string.IsNullOrEmpty(linkedInPost.ImageUrlRemote)) cache.Set(LinkedInPost.ImageUrlRemoteConst, linkedInPost.ImageUrlRemote);
-		if (!string.IsNullOrEmpty(linkedInPost.TextUrl)) cache.Set(LinkedInPost.UrlConst, linkedInPost.TextUrl);
+		post.ClientId = Configuration["LinkedIn:ClientId"];
+		post.RedirectUri = Configuration["LinkedIn:RedirectUri"];
+		post.ReturnUrl = "/Counter";// Encoded("/")
+		
+		//"https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=78y4e4touu7uv8&redirect_uri=https://localhost:7244/linkedin/callback&scope=openid%20profile%20email%20r_basicprofile%20w_member_social&state=Text%3DDefaultTest%2520Of%2520Linkedin%2520Post%2520Testing%2520Text%2520Here%2520only%26ImageUrlRemote%3Dhttps%253A%252F%252Fwww.w3schools.com%252Fhowto%252Fimg_nature.jpg%26TextUrl%3DSmartTown.in%26ReturnUrl%3D%252FCounter"
 
-		var authorizationUrl = $"https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id={Configuration["LinkedIn:ClientId"]}&redirect_uri={Configuration["LinkedIn:RedirectUri"]}&scope=openid%20profile%20email%20r_basicprofile%20w_member_social";
-
-		Navigation.NavigateTo(authorizationUrl, true);
+		Navigation.NavigateTo(post.GetAuthorizationUrl(), true);
 	}
 }
