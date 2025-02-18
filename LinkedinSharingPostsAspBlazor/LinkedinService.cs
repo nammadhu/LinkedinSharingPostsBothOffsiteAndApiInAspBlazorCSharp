@@ -35,10 +35,10 @@ public class LinkedInService(IHttpClientFactory httpClientFactory, IConfiguratio
         response.EnsureSuccessStatusCode();
 
         var payload = await response.Content.ReadFromJsonAsync<LinkedInAccessTokenResponse>();
-        return payload?.AccessToken;
+        return payload?.access_token;
     }
 
-    public async Task<string?> GetPersonIdAsync(string accessToken)
+    public async Task<LinkedInProfileResponse?> GetPersonIdAsync(string accessToken)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, "https://api.linkedin.com/v2/me")
         {
@@ -55,8 +55,7 @@ public class LinkedInService(IHttpClientFactory httpClientFactory, IConfiguratio
             throw new Exception($"Error fetching person ID: {response.StatusCode}, {errorContent}");
         }
 
-        var payload = await response.Content.ReadFromJsonAsync<LinkedInProfileResponse>();
-        return payload?.Id;
+        return await response.Content.ReadFromJsonAsync<LinkedInProfileResponse>();
     }
 
     public async Task<(string uploadUrl, string asset)> RegisterUploadAsync(string accessToken, string personId)

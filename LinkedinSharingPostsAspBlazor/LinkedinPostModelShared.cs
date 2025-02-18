@@ -22,7 +22,7 @@ public class LinkedInPost
     public string ImageUrlRemote { get; set; } = "https://www.w3schools.com/howto/img_nature.jpg";
     //public string? ImageUrlLocal { get; set; }//for uploading from local server
     public string TextUrl { get; set; } = "SmartTown.in";
-    public string ReturnUrl { get; set; } = "https://localhost:7244/Counter";//Encoded("/");
+    public string ReturnUrl { get; set; } = string.Empty;//Encoded("/");
 
     public string GetAuthorizationUrl()// "%2F" means "/"
     {

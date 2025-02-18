@@ -8,17 +8,17 @@ namespace LinkedinSharingPostsAspBlazor;
 
 public class LinkedInAccessTokenResponse
 {
-    [JsonPropertyName("access_token")]
-    public string AccessToken { get; set; }
+    public string access_token { get; set; }
 
-    [JsonPropertyName("expires_in")]
-    public int ExpiresIn { get; set; }
+    public int expires_in { get; set; }
 }
 
 public class LinkedInProfileResponse
 {
-    [JsonPropertyName("id")]
-    public string Id { get; set; }
+    public string id { get; set; }
+
+    public string vanityName { get; set; }
+    
 }
 
 public class LinkedInUploadResponse

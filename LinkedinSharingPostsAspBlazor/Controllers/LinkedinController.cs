@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace LinkedinSharingPostsAspBlazor.Controllers;
 
@@ -27,8 +28,8 @@ public class LinkedinController(LinkedInService linkedInService) : ControllerBas
             var accessToken = await linkedInService.GetAccessTokenAsync(code!);
             if (string.IsNullOrEmpty(accessToken)) throw new Exception("AccessToken Fetching Failed");
 
-            var personId = await linkedInService.GetPersonIdAsync(accessToken);
-            if (string.IsNullOrEmpty(personId)) throw new Exception("personId Fetching Failed");
+            var userProfile = await linkedInService.GetPersonIdAsync(accessToken);
+            if (string.IsNullOrEmpty(userProfile?.id)) throw new Exception("personId Fetching Failed");
 
             if (string.IsNullOrEmpty(context.Request.Query[nameof(LinkedInPost.state)])) throw new Exception("no State parameter,so nothing to post");
 
@@ -36,13 +37,18 @@ public class LinkedinController(LinkedInService linkedInService) : ControllerBas
             string? uploadedAssetUrl = null;
             if (!string.IsNullOrEmpty(imageUrl))//imageBytes != null || 
             {
-                (string uploadUrl, uploadedAssetUrl) = await linkedInService.RegisterUploadAsync(accessToken, personId);
+                (string uploadUrl, uploadedAssetUrl) = await linkedInService.RegisterUploadAsync(accessToken, userProfile.id);
 
                 await linkedInService.UploadImageAsync(uploadUrl, imageBytes: null, remoteImageUrl: imageUrl);
             }
 
-            await linkedInService.SharePostAsync(accessToken, personId, text, uploadedAssetUrl, url);
-            context.Response.Redirect(returnUrl ?? "/");
+            await linkedInService.SharePostAsync(accessToken, userProfile.id, text, uploadedAssetUrl, url);
+            if (string.IsNullOrEmpty(returnUrl) || returnUrl == "/")
+            {
+                context.Response.Redirect($"https://www.linkedin.com/in/{userProfile.vanityName}");
+            }
+            else context.Response.Redirect(returnUrl);
+            //https prefix must for external urls otherwise this gets appended and become like https://localhost:7244/externalReturnUrl
         }
         else context.Response.Redirect("/");
     }
