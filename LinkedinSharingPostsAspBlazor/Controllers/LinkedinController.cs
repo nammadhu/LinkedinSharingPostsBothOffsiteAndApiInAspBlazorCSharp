@@ -13,6 +13,9 @@ public class LinkedinController(LinkedInService linkedInService) : ControllerBas
         var code = context.Request.Query["code"];
         if (string.IsNullOrEmpty(code)) throw new Exception("Auth Code Not Received");
 
+        if (string.IsNullOrEmpty(context.Request.Query[nameof(LinkedInPost.state)])) 
+            throw new Exception("no State parameter,so nothing to post");
+
         var queryParameters = LinkedInPost.ParseState(context.Request.Query[nameof(LinkedInPost.state)]!);
         if (queryParameters != null)
         {
@@ -29,8 +32,6 @@ public class LinkedinController(LinkedInService linkedInService) : ControllerBas
 
             var userProfile = await linkedInService.GetPersonIdAsync(accessToken);
             if (string.IsNullOrEmpty(userProfile?.id)) throw new Exception("personId Fetching Failed");
-
-            if (string.IsNullOrEmpty(context.Request.Query[nameof(LinkedInPost.state)])) throw new Exception("no State parameter,so nothing to post");
 
             //cache can be used but in case of detached mode of clinet server it makes problem
             string? uploadedAssetUrl = null;
