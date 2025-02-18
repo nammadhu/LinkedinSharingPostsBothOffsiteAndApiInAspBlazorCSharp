@@ -16,7 +16,7 @@ public class LinkedInProfileResponse
     public string id { get; set; }
 
     public string vanityName { get; set; }
-    
+
 }
 
 public class LinkedInUploadResponse
