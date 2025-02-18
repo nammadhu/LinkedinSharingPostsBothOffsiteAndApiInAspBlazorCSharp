@@ -2,7 +2,7 @@
 
 namespace LinkedinSharingPostsAspBlazor;
 
-
+//For Both client and Server Side shared
 public class LinkedInPost
 {
     public LinkedInPost() { }
@@ -60,35 +60,4 @@ public class LinkedInPost
 
     public static string GetAuthorizationUrl(string clientId, string redirectUri, string returnUrl = "%2F")// "%2F" means "/"
     => $"{AuthorizeCodeUrl}{clientId}&redirect_uri={Uri.EscapeDataString($"?returnUrl={returnUrl}")}&scope={Scopes}";
-}
-
-public class LinkedInAccessTokenResponse
-{
-    [JsonPropertyName("access_token")]
-    public string AccessToken { get; set; }
-
-    [JsonPropertyName("expires_in")]
-    public int ExpiresIn { get; set; }
-}
-
-public class LinkedInProfileResponse
-{
-    [JsonPropertyName("id")]
-    public string Id { get; set; }
-}
-
-public class LinkedInUploadResponse
-{
-    public LinkedInUploadValue value { get; set; }
-}
-
-public class LinkedInUploadValue
-{
-    public Dictionary<string, LinkedInUploadMechanism> uploadMechanism { get; set; }
-    public string asset { get; set; }
-}
-
-public class LinkedInUploadMechanism
-{
-    public string uploadUrl { get; set; }
 }
