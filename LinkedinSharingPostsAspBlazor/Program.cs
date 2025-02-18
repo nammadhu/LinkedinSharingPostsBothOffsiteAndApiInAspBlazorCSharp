@@ -13,7 +13,7 @@ namespace LinkedinSharingPostsAspBlazor
                 .AddInteractiveServerComponents();
 
             builder.Services.AddControllers();//for callback endpoint handling
-            builder.Services.AddSingleton<LinkedInService>();
+            builder.Services.AddScoped<LinkedInService>();
             builder.Services.AddHttpClient();
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddMemoryCache();

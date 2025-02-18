@@ -2,7 +2,10 @@
 
 namespace LinkedinSharingPostsAspBlazor;
 
-//Requried only For Server Side to Process in Backend
+/// <summary>
+/// Requried only For Server Side to Process in Backend
+/// Configurationwise this requires only ClientID,ClientSecret & RedirectUri
+/// </summary>
 public class LinkedInAccessTokenResponse
 {
     [JsonPropertyName("access_token")]

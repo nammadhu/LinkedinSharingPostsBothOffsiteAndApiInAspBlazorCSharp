@@ -2,7 +2,12 @@
 
 namespace LinkedinSharingPostsAspBlazor;
 
-//For Both client and Server Side shared
+/// <summary>
+/// For Both client and Server Side shared
+///Configurationwise this requires only ClientID & RedirectUri
+///ClientSecret is only on server side processing for fetching AccessToken from linkedin
+///This File can be shared to any open netwoeked clients with clientid and redirecturi
+/// </summary>
 public class LinkedInPost
 {
     public LinkedInPost() { }
