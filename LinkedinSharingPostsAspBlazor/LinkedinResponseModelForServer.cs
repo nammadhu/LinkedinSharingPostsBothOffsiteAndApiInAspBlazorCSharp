@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace LinkedinSharingPostsAspBlazor;
+﻿namespace LinkedinSharingPostsAspBlazor;
 
 /* Below Models are Requried only For Server Side to Process in Backend
  * Configurationwise this requires only ClientID,ClientSecret & RedirectUri

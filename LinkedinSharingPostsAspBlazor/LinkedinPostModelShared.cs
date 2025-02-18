@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace LinkedinSharingPostsAspBlazor;
+﻿namespace LinkedinSharingPostsAspBlazor;
 
 /// <summary>
 /// For Both client and Server Side shared
