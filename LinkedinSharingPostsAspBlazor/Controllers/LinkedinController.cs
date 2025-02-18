@@ -11,20 +11,28 @@ public class LinkedinController(LinkedInService linkedInService) : ControllerBas
     {
         var context = this.HttpContext;
         var code = context.Request.Query["code"];
-        if (string.IsNullOrEmpty(code)) throw new Exception("Code Is Not Passed");
+        if (string.IsNullOrEmpty(code)) throw new Exception("Auth Code Not Received");
 
-        var accessToken = await linkedInService.GetAccessTokenAsync(code!);
-        var personId = await linkedInService.GetPersonIdAsync(accessToken);
-
-       //cache can be used but in case of detached mode of clinet server it makes problem
-        var queryParameters = LinkedInPost.ParseState(context.Request.Query[nameof(LinkedInPost.state)]);
+        var queryParameters = LinkedInPost.ParseState(context.Request.Query[nameof(LinkedInPost.state)]!);
         if (queryParameters != null)
         {
-            queryParameters.TryGetValue(nameof(LinkedInPost.Text), out string text);
-            queryParameters.TryGetValue(nameof(LinkedInPost.ImageUrlRemote), out string imageUrl);
-            queryParameters.TryGetValue(nameof(LinkedInPost.TextUrl), out string url);
-            queryParameters.TryGetValue(nameof(LinkedInPost.ReturnUrl),out string returnUrl);
+            queryParameters.TryGetValue(nameof(LinkedInPost.Text), out string? text);
+            queryParameters.TryGetValue(nameof(LinkedInPost.ImageUrlRemote), out string? imageUrl);
+            queryParameters.TryGetValue(nameof(LinkedInPost.TextUrl), out string? url);
+            queryParameters.TryGetValue(nameof(LinkedInPost.ReturnUrl), out string? returnUrl);
 
+            if (string.IsNullOrEmpty(text) && string.IsNullOrEmpty(imageUrl) && string.IsNullOrEmpty(url))
+                throw new Exception("No Content,so nothing to post");
+
+            var accessToken = await linkedInService.GetAccessTokenAsync(code!);
+            if (string.IsNullOrEmpty(accessToken)) throw new Exception("AccessToken Fetching Failed");
+
+            var personId = await linkedInService.GetPersonIdAsync(accessToken);
+            if (string.IsNullOrEmpty(personId)) throw new Exception("personId Fetching Failed");
+
+            if (string.IsNullOrEmpty(context.Request.Query[nameof(LinkedInPost.state)])) throw new Exception("no State parameter,so nothing to post");
+
+            //cache can be used but in case of detached mode of clinet server it makes problem
             string? uploadedAssetUrl = null;
             if (!string.IsNullOrEmpty(imageUrl))//imageBytes != null || 
             {
@@ -34,7 +42,7 @@ public class LinkedinController(LinkedInService linkedInService) : ControllerBas
             }
 
             await linkedInService.SharePostAsync(accessToken, personId, text, uploadedAssetUrl, url);
-            context.Response.Redirect(returnUrl??"/");
+            context.Response.Redirect(returnUrl ?? "/");
         }
         context.Response.Redirect("/");
     }

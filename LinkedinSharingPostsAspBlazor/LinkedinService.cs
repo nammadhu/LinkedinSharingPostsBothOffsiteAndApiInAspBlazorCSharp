@@ -1,6 +1,5 @@
 ﻿using System.Net.Http.Headers;
 using System.Text;
-using System.Text.Json.Serialization;
 
 namespace LinkedinSharingPostsAspBlazor;
 public class LinkedInService(IHttpClientFactory httpClientFactory, IConfiguration configuration)
@@ -8,17 +7,27 @@ public class LinkedInService(IHttpClientFactory httpClientFactory, IConfiguratio
     private readonly HttpClient _httpClient = httpClientFactory.CreateClient();
     private readonly IConfiguration _configuration = configuration;
 
-    public async Task<string> GetAccessTokenAsync(string authorizationCode)
+    public async Task<string?> GetAccessTokenAsync(string authorizationCode)
     {
+        if (_configuration["LinkedIn:RedirectUri"] == null ||
+            _configuration["LinkedIn:ClientId"] == null ||
+            _configuration["LinkedIn:ClientSecret"] == null)
+            throw new Exception(@"Linkedin Configuration Should be present like 
+""LinkedIn"": {
+        ""ClientId"": ""45y4e4tovv7uv8"",
+        ""ClientSecret"": ""uto_AP1.LvtOMD54cBwkAdfgyd.1sSdd7g=="",
+        ""RedirectUri"": ""https://localhost:7244/linkedin/callback""
+    }");
+
         var request = new HttpRequestMessage(HttpMethod.Post, "https://www.linkedin.com/oauth/v2/accessToken")
         {
             Content = new FormUrlEncodedContent(new Dictionary<string, string>
             {
                 { "grant_type", "authorization_code" },
                 { "code", authorizationCode },
-                { "redirect_uri", _configuration["LinkedIn:RedirectUri"] },
-                { "client_id", _configuration["LinkedIn:ClientId"] },
-                { "client_secret", _configuration["LinkedIn:ClientSecret"] }
+                { "redirect_uri", _configuration["LinkedIn:RedirectUri"]! },
+                { "client_id", _configuration["LinkedIn:ClientId"] ! },
+                { "client_secret", _configuration["LinkedIn:ClientSecret"]! }
             })
         };
 
@@ -26,10 +35,10 @@ public class LinkedInService(IHttpClientFactory httpClientFactory, IConfiguratio
         response.EnsureSuccessStatusCode();
 
         var payload = await response.Content.ReadFromJsonAsync<LinkedInAccessTokenResponse>();
-        return payload.AccessToken;
+        return payload?.AccessToken;
     }
 
-    public async Task<string> GetPersonIdAsync(string accessToken)
+    public async Task<string?> GetPersonIdAsync(string accessToken)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, "https://api.linkedin.com/v2/me")
         {
@@ -47,7 +56,7 @@ public class LinkedInService(IHttpClientFactory httpClientFactory, IConfiguratio
         }
 
         var payload = await response.Content.ReadFromJsonAsync<LinkedInProfileResponse>();
-        return payload.Id;
+        return payload?.Id;
     }
 
     public async Task<(string uploadUrl, string asset)> RegisterUploadAsync(string accessToken, string personId)
@@ -110,7 +119,7 @@ public class LinkedInService(IHttpClientFactory httpClientFactory, IConfiguratio
         return uploadUrl;
     }
 
-    public async Task SharePostAsync(string accessToken, string personId, string text, string assetUrl, string url)
+    public async Task SharePostAsync(string accessToken, string personId, string? text, string? assetUrl, string? url)
     {
         string? jsonPayload = $@"
     {{
@@ -119,7 +128,7 @@ public class LinkedInService(IHttpClientFactory httpClientFactory, IConfiguratio
         ""specificContent"": {{
             ""com.linkedin.ugc.ShareContent"": {{
                 ""shareCommentary"": {{
-                    ""text"": ""{text} {url ?? ""}""
+                    ""text"": ""{text ?? ""} {url ?? ""}""
                 }},
                ""shareMediaCategory"": ""NONE""
             }}
@@ -177,94 +186,4 @@ public class LinkedInService(IHttpClientFactory httpClientFactory, IConfiguratio
     }
 }
 
-public class LinkedInPost
-{
-    public LinkedInPost() { }
-    public LinkedInPost(string clientId, string redirectUri)
-    {
-        this.ClientId = clientId;
-        this.RedirectUri = redirectUri;
-    }
-    public string ClientId { get; set; } = default!;
-    public string RedirectUri { get; set; } = default!;
-    public string Text { get; set; } = "Default Linkedin Post Testing Text Here only";
-    public string ImageUrlRemote { get; set; } = "https://www.w3schools.com/howto/img_nature.jpg";
-    //public string? ImageUrlLocal { get; set; }//for uploading from local server
-    public string TextUrl { get; set; } = "SmartTown.in";
-    public string ReturnUrl { get; set; } = "/";//Encoded("/");
-
-    public string GetAuthorizationUrl()// "%2F" means "/"
-    {
-        string queryParameters = string.Empty;
-        if (!string.IsNullOrEmpty(Text) || !string.IsNullOrEmpty(ImageUrlRemote) || !string.IsNullOrEmpty(TextUrl))
-        {
-            //"Text=DefaultTest%20Of%20Linkedin%20Post%20Testing%20Text%20Here%20only&ImageUrlRemote=https%3A%2F%2Fwww.w3schools.com%2Fhowto%2Fimg_nature.jpg&TextUrl=SmartTown.in&ReturnUrl=%2FCounter"
-
-            if (!string.IsNullOrEmpty(Text))
-                queryParameters += $"{nameof(Text)}={Uri.EscapeDataString(Text)}";
-            if (!string.IsNullOrEmpty(ImageUrlRemote))
-                queryParameters += $"&{nameof(ImageUrlRemote)}={Uri.EscapeDataString(ImageUrlRemote)}";
-            if (!string.IsNullOrEmpty(TextUrl))
-                queryParameters += $"&{nameof(TextUrl)}={Uri.EscapeDataString(TextUrl)}";
-            if (!string.IsNullOrEmpty(ReturnUrl))
-                queryParameters += $"&{nameof(ReturnUrl)}={Uri.EscapeDataString(ReturnUrl)}";
-        }
-
-        //"https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=78y4e4touu7uv8&redirect_uri=https://localhost:7244/linkedin/callback&scope=openid%20profile%20email%20r_basicprofile%20w_member_social&state=Text%3DDefaultTest%2520Of%2520Linkedin%2520Post%2520Testing%2520Text%2520Here%2520only%26ImageUrlRemote%3Dhttps%253A%252F%252Fwww.w3schools.com%252Fhowto%252Fimg_nature.jpg%26TextUrl%3DSmartTown.in%26ReturnUrl%3D%252FCounter"
-
-        var url = $"{AuthorizeCodeUrl}{ClientId}&redirect_uri={RedirectUri}&scope={Scopes}&{nameof(state)}={Uri.EscapeDataString(queryParameters)}";
-        return url;
-    }
-
-    public static Dictionary<string, string>? ParseState(string state)
-    {
-        if (!string.IsNullOrEmpty(state))
-            return Uri.UnescapeDataString(state).Split('&')
-                               .Select(part => part.Split('='))
-                               .ToDictionary(split => split[0], split => split[1]);
-        else return null;
-    }
-
-    //var authorizationUrl = $"https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id={Configuration["LinkedIn:ClientId"]}&redirect_uri={Configuration["LinkedIn:RedirectUri"]}&scope=openid%20profile%20email%20r_basicprofile%20w_member_social";
-
-    public const string AuthorizeCodeUrl = "https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=";
-    //Uri.EscapeDataString("openid profile email r_basicprofile w_member_social");
-    public const string Scopes = "openid%20profile%20email%20r_basicprofile%20w_member_social";
-    public const string state = "state";
-
-    public static string GetAuthorizationUrl(string clientId, string redirectUri, string returnUrl = "%2F")// "%2F" means "/"
-    => $"{AuthorizeCodeUrl}{clientId}&redirect_uri={Uri.EscapeDataString($"?returnUrl={returnUrl}")}&scope={Scopes}";
-}
-
-
-public class LinkedInAccessTokenResponse
-{
-    [JsonPropertyName("access_token")]
-    public string AccessToken { get; set; }
-
-    [JsonPropertyName("expires_in")]
-    public int ExpiresIn { get; set; }
-}
-
-public class LinkedInProfileResponse
-{
-    [JsonPropertyName("id")]
-    public string Id { get; set; }
-}
-
-public class LinkedInUploadResponse
-{
-    public LinkedInUploadValue value { get; set; }
-}
-
-public class LinkedInUploadValue
-{
-    public Dictionary<string, LinkedInUploadMechanism> uploadMechanism { get; set; }
-    public string asset { get; set; }
-}
-
-public class LinkedInUploadMechanism
-{
-    public string uploadUrl { get; set; }
-}
 
