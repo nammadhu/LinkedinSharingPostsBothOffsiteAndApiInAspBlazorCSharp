@@ -44,6 +44,6 @@ public class LinkedinController(LinkedInService linkedInService) : ControllerBas
             await linkedInService.SharePostAsync(accessToken, personId, text, uploadedAssetUrl, url);
             context.Response.Redirect(returnUrl ?? "/");
         }
-        context.Response.Redirect("/");
+        else context.Response.Redirect("/");
     }
 }
