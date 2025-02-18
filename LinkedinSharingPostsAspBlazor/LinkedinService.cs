@@ -38,7 +38,7 @@ public class LinkedInService(IHttpClientFactory httpClientFactory, IConfiguratio
         return payload?.access_token;
     }
 
-    public async Task<LinkedInProfileResponse?> GetPersonIdAsync(string accessToken)
+    public async Task<LinkedInProfileResponse?> GetUserProfileAsync(string accessToken)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, "https://api.linkedin.com/v2/me")
         {
@@ -101,11 +101,11 @@ public class LinkedInService(IHttpClientFactory httpClientFactory, IConfiguratio
         //.uploadMechanism["com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest"].uploadUrl;
     }
 
-    public async Task<string> UploadImageAsync(string uploadUrl, byte[]? imageBytes = null, string? remoteImageUrl = null)
+    public async Task<string> UploadImageAsync(string uploadUrl, Exception argumentNullException, byte[]? imageBytes = null, string? remoteImageUrl = null)
     {
         if (imageBytes == null && remoteImageUrl == null)
-            throw new ArgumentNullException("imageBytes or remoteImageUrl must be provided");
-        imageBytes ??= await _httpClient.GetByteArrayAsync("https://www.w3schools.com/howto/img_nature.jpg");
+            throw argumentNullException;
+        imageBytes ??= await _httpClient.GetByteArrayAsync(remoteImageUrl);
         var request = new HttpRequestMessage(HttpMethod.Put, uploadUrl)
         {
             Content = new ByteArrayContent(imageBytes)

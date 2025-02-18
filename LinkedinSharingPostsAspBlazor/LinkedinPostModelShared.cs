@@ -30,13 +30,15 @@ public class LinkedInPost
             //"Text=DefaultTest%20Of%20Linkedin%20Post%20Testing%20Text%20Here%20only&ImageUrlRemote=https%3A%2F%2Fwww.w3schools.com%2Fhowto%2Fimg_nature.jpg&TextUrl=SmartTown.in&ReturnUrl=%2FCounter"
 
             if (!string.IsNullOrEmpty(Text))
-                queryParameters += $"{nameof(Text)}={Uri.EscapeDataString(Text)}";
+                queryParameters += $"{nameof(Text)}={Uri.EscapeDataString(Text)}{endStringOfQueryInState}";
             if (!string.IsNullOrEmpty(ImageUrlRemote))
-                queryParameters += $"&{nameof(ImageUrlRemote)}={Uri.EscapeDataString(ImageUrlRemote)}";
+                queryParameters += $"{nameof(ImageUrlRemote)}={Uri.EscapeDataString(ImageUrlRemote)}{endStringOfQueryInState}";
             if (!string.IsNullOrEmpty(TextUrl))
-                queryParameters += $"&{nameof(TextUrl)}={Uri.EscapeDataString(TextUrl)}";
+                queryParameters += $"{nameof(TextUrl)}={Uri.EscapeDataString(TextUrl)}{endStringOfQueryInState}";
             if (!string.IsNullOrEmpty(ReturnUrl))
-                queryParameters += $"&{nameof(ReturnUrl)}={Uri.EscapeDataString(ReturnUrl)}";
+                queryParameters += $"{nameof(ReturnUrl)}={Uri.EscapeDataString(ReturnUrl)}{endStringOfQueryInState}";
+            //Text=Madhu here all;Url=abc.com;
+            //Make sure inside text should not have ;,if it has then replace it with ##0011 then on opposite also revert it
         }
 
         //"https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=78y4e4touu7uv8&redirect_uri=https://localhost:7244/linkedin/callback&scope=openid%20profile%20email%20r_basicprofile%20w_member_social&state=Text%3DDefaultTest%2520Of%2520Linkedin%2520Post%2520Testing%2520Text%2520Here%2520only%26ImageUrlRemote%3Dhttps%253A%252F%252Fwww.w3schools.com%252Fhowto%252Fimg_nature.jpg%26TextUrl%3DSmartTown.in%26ReturnUrl%3D%252FCounter"
@@ -48,7 +50,7 @@ public class LinkedInPost
     public static Dictionary<string, string>? ParseState(string state)
     {
         if (!string.IsNullOrEmpty(state))
-            return Uri.UnescapeDataString(state).Split('&')
+            return Uri.UnescapeDataString(state).Split(endStringOfQueryInState).Where(x => !string.IsNullOrEmpty(x)).ToList()
                                .Select(part => part.Split('='))
                                .ToDictionary(split => split[0], split => split[1]);
         else return null;
@@ -60,6 +62,7 @@ public class LinkedInPost
     //Uri.EscapeDataString("openid profile email r_basicprofile w_member_social");
     public const string Scopes = "openid%20profile%20email%20r_basicprofile%20w_member_social";
     public const string state = "state";
+    public const string endStringOfQueryInState = "amqueryendingescaper";
 
     public static string GetAuthorizationUrl(string clientId, string redirectUri, string returnUrl = "%2F")// "%2F" means "/"
     => $"{AuthorizeCodeUrl}{clientId}&redirect_uri={Uri.EscapeDataString($"?returnUrl={returnUrl}")}&scope={Scopes}";

@@ -13,7 +13,7 @@ public class LinkedinController(LinkedInService linkedInService) : ControllerBas
         var code = context.Request.Query["code"];
         if (string.IsNullOrEmpty(code)) throw new Exception("Auth Code Not Received");
 
-        if (string.IsNullOrEmpty(context.Request.Query[nameof(LinkedInPost.state)])) 
+        if (string.IsNullOrEmpty(context.Request.Query[nameof(LinkedInPost.state)]))
             throw new Exception("no State parameter,so nothing to post");
 
         var queryParameters = LinkedInPost.ParseState(context.Request.Query[nameof(LinkedInPost.state)]!);
@@ -30,7 +30,7 @@ public class LinkedinController(LinkedInService linkedInService) : ControllerBas
             var accessToken = await linkedInService.GetAccessTokenAsync(code!);
             if (string.IsNullOrEmpty(accessToken)) throw new Exception("AccessToken Fetching Failed");
 
-            var userProfile = await linkedInService.GetPersonIdAsync(accessToken);
+            var userProfile = await linkedInService.GetUserProfileAsync(accessToken);
             if (string.IsNullOrEmpty(userProfile?.id)) throw new Exception("personId Fetching Failed");
 
             //cache can be used but in case of detached mode of clinet server it makes problem
@@ -39,12 +39,13 @@ public class LinkedinController(LinkedInService linkedInService) : ControllerBas
             {
                 (string uploadUrl, uploadedAssetUrl) = await linkedInService.RegisterUploadAsync(accessToken, userProfile.id);
 
-                await linkedInService.UploadImageAsync(uploadUrl, imageBytes: null, remoteImageUrl: imageUrl);
+                await linkedInService.UploadImageAsync(uploadUrl, new ArgumentNullException("imageBytes or remoteImageUrl must be provided"), imageBytes: null, remoteImageUrl: imageUrl);
             }
 
             await linkedInService.SharePostAsync(accessToken, userProfile.id, text, uploadedAssetUrl, url);
             if (string.IsNullOrEmpty(returnUrl) || returnUrl == "/")
             {
+                await Task.Delay(6000);//need to wait otherwise newly added wont appear,requires other restart
                 context.Response.Redirect($"https://www.linkedin.com/in/{userProfile.vanityName}");
             }
             else context.Response.Redirect(returnUrl);
